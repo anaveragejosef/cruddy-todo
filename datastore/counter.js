@@ -38,12 +38,35 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
-  counter = counter + 1;
-  return zeroPaddedNumber(counter);
+// exports.getNextUniqueId = () => {
+//   counter = counter + 1;
+//   return zeroPaddedNumber(counter);
+// };
+
+
+exports.getNextUniqueId = (callback) => {
+
+  // Invoke readCounter - Pass callback function as argument
+  // Callback - takes two parameters, which are err and count/ID
+  return readCounter((err, data) => {
+    if (err) {
+      console.log('Cannot read count ID: ', err);
+      return;
+    } else {
+      // Within this callback invoke writeCounter - This takes count/ID and a callback
+      // When we are passing the ID/count argument, increment
+      return writeCounter((data + 1), ((err, countID) => {
+        // Callback - return either the err (1st param) or count/ID (2nd param)
+        if (err) {
+          console.log('Cannot write count ID: ', err);
+          return;
+        } else {
+          callback(err, countID);
+        }
+      }));
+    }
+  });
 };
-
-
 
 // Configuration -- DO NOT MODIFY //////////////////////////////////////////////
 
