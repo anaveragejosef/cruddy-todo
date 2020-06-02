@@ -8,9 +8,44 @@ var items = {};
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
-  var id = counter.getNextUniqueId();
-  items[id] = text;
-  callback(null, { id, text });
+  //fs.writeFile(`${dataDir}/${id}.txt`, text, (err, data) => {})
+
+
+  counter.getNextUniqueId((err, id) => {
+    if (err) {
+      console.log('Cannot read count ID: ', err);
+    } else {
+      // console.log('data: ', data); //0004
+      // return data;
+      fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err, id) => {
+        if (err) {
+          console.log('Cannot create new file: ', err);
+        } else {
+          // callback(err, id);
+          callback(null, { id, text });
+          // items[id] = text;
+        }
+      });
+    }
+  });
+  // console.log('ID = ', id); // undefined
+  // path.join('/foo', 'bar', 'baz/asdf', 'quux', '..');
+  // Returns: '/foo/bar/baz/asdf'
+  // fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err, data) => {
+  //   if (err) {
+  //     console.log('Cannot create new file: ', err);
+  //   } else {
+  //     callback(err, data);
+  //   }
+  // });
+
+  // items[id] = text;
+  // callback(null, { id, text });
+
+
+  // var id = counter.getNextUniqueId();
+  // items[id] = text;
+  // callback(null, { id, text });
 };
 
 exports.readAll = (callback) => {
