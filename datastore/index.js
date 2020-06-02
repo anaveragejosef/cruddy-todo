@@ -8,16 +8,13 @@ var items = {};
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 
 exports.create = (text, callback) => {
-  //fs.writeFile(`${dataDir}/${id}.txt`, text, (err, data) => {})
-
-
   counter.getNextUniqueId((err, id) => {
     if (err) {
       console.log('Cannot read count ID: ', err);
     } else {
       // console.log('data: ', data); //0004
       // return data;
-      fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err, id) => {
+      fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err) => {
         if (err) {
           console.log('Cannot create new file: ', err);
         } else {
@@ -28,31 +25,29 @@ exports.create = (text, callback) => {
       });
     }
   });
-  // console.log('ID = ', id); // undefined
-  // path.join('/foo', 'bar', 'baz/asdf', 'quux', '..');
-  // Returns: '/foo/bar/baz/asdf'
-  // fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err, data) => {
-  //   if (err) {
-  //     console.log('Cannot create new file: ', err);
-  //   } else {
-  //     callback(err, data);
-  //   }
-  // });
-
-  // items[id] = text;
-  // callback(null, { id, text });
-
-
-  // var id = counter.getNextUniqueId();
-  // items[id] = text;
-  // callback(null, { id, text });
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+  fs.readdir(exports.dataDir, (err, files) => {
+    if (err) {
+      console.log('Cannot read All: ', err);
+    } else {
+      // create output array
+      let allTodo = [];
+      // iterate over filename of files
+      files.forEach(fileName => {
+        let todoId = fileName.slice(0, 5);
+        // create object for each filename (2 keys: point to file name)
+        let todo = {id: todoId, text: todoId};
+        // push into the output array
+        allTodo.push(todo);
+      });
+      // call callback passing back interited err & output array
+      callback(err, allTodo);
+    }
+
   });
-  callback(null, data);
+
 };
 
 exports.readOne = (id, callback) => {
