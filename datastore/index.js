@@ -51,33 +51,52 @@ exports.readAll = (callback) => {
 };
 
 exports.readOne = (id, callback) => {
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+  // Use fs.readFile - Pass in path with file name, callback (err and data)
+  fs.readFile(path.join(exports.dataDir, `${id}.txt`), (err, data) => {
+    // Test for errors
+    if (err) {
+      // If so, console log error message
+      callback(new Error(`No item with id: ${err}`));
+    } else { // If there is no error
+      // Callback with err and an object literal with id and text (Use data var)
+      callback(err, {id: id, text: data.toString()});
+    }
+  });
 };
 
 exports.update = (id, text, callback) => {
-  var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+  fs.readFile(path.join(exports.dataDir, `${id}.txt`), (err, data) => {
+    // Test for errors
+    if (err) {
+      // If so, console log error message
+      callback(new Error(`No item with id: ${err}`));
+    } else { // If there is no error
+      // use writeFile passing path, text, callback with only one err
+      fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err) => {
+        // test err
+        if (err) {
+          // callback with new error
+          callback(new Error(`No item with id: ${err}`));
+        } else {
+          // callback with err and {id: id, text: text}
+          callback( err, {id: id, text: text} );
+        }
+      });
+    }
+  });
 };
 
 exports.delete = (id, callback) => {
-  var item = items[id];
-  delete items[id];
-  if (!item) {
-    // report an error if item not found
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback();
-  }
+  // Call unlink using path and one err param for callback
+  fs.unlink(path.join(exports.dataDir, `${id}.txt`), (err) => {
+    // Test for error and alert if found
+    if (err) {
+      callback(new Error(`Cannot delete item. Item does not exist: ${err}`));
+    } else {
+    // If no error, callback to notify completion
+      callback();
+    }
+  });
 };
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
