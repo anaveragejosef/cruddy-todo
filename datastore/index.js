@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
+const PromisifedReadFileAsync = Promise.promisify(fs.readFile);
 
 var items = {};
 
@@ -26,29 +28,50 @@ exports.create = (text, callback) => {
     }
   });
 };
-
 exports.readAll = (callback) => {
   fs.readdir(exports.dataDir, (err, files) => {
     if (err) {
-      console.log('Cannot read All: ', err);
+      callback(err, null);
     } else {
-      // create output array
-      let allTodo = [];
-      // iterate over filename of files
+      var promiseArr = files.map(fileName => {
+        // console.log(PromisifedReadFileAsync(path.join(exports.dataDir, fileName)));
+        return PromisifedReadFileAsync(path.join(exports.dataDir, fileName))
+          .then((data) => {
+            // console.log(data.toString()); //todo1 , todo2
+            return {id: fileName.slice(0, 5), text: data.toString()};
+          });
+      });
+      return Promise.all(promiseArr)
+        .then((results) => {
+          callback(null, results);
+        });
+    }
+  });
+};
+
+////////////////////////////////////////////////////
+// let allTodo = [];
+/* .then((files) => {
       files.forEach(fileName => {
         let todoId = fileName.slice(0, 5);
         // create object for each filename (2 keys: point to file name)
-        let todo = {id: todoId, text: todoId};
-        // push into the output array
-        allTodo.push(todo);
+        // Add read file
+        return PromisifedReadFileAsync(path.join(exports.dataDir, fileName)) // returns contents of file - add to object below
+          .then((content) => {
+            var todo = {id: todoId, text: content};
+            allTodo.push(todo);
+            return todo;
+          });
       });
-      // call callback passing back interited err & output array
-      callback(err, allTodo);
-    }
+    })
+    .then(function(values) {
+      return Promise.all( [...Promise] )
+      .then((results) => {
+        callback(err, results);
+      })
+    })
+     */
 
-  });
-
-};
 
 exports.readOne = (id, callback) => {
   // Use fs.readFile - Pass in path with file name, callback (err and data)
