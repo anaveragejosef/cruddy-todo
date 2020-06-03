@@ -49,30 +49,6 @@ exports.readAll = (callback) => {
   });
 };
 
-////////////////////////////////////////////////////
-// let allTodo = [];
-/* .then((files) => {
-      files.forEach(fileName => {
-        let todoId = fileName.slice(0, 5);
-        // create object for each filename (2 keys: point to file name)
-        // Add read file
-        return PromisifedReadFileAsync(path.join(exports.dataDir, fileName)) // returns contents of file - add to object below
-          .then((content) => {
-            var todo = {id: todoId, text: content};
-            allTodo.push(todo);
-            return todo;
-          });
-      });
-    })
-    .then(function(values) {
-      return Promise.all( [...Promise] )
-      .then((results) => {
-        callback(err, results);
-      })
-    })
-     */
-
-
 exports.readOne = (id, callback) => {
   // Use fs.readFile - Pass in path with file name, callback (err and data)
   fs.readFile(path.join(exports.dataDir, `${id}.txt`), (err, data) => {
